@@ -1,25 +1,25 @@
 ---
-name: lokalise-upload
+name: lokalise-create
 description: >
   Use this skill when the user wants to create new translation keys in Lokalise with their English text.
-  The user is building a Vue component and wants to register new $t() keys directly in Lokalise via CLI
-  without touching the local resources/lang/ folder (those are managed by pulling from Lokalise).
+  The user is working on a project and wants to register new translation keys directly in Lokalise via CLI
+  without touching the local language files (those are managed by pulling from Lokalise).
   Trigger on: "lokalise upload", "create lokalise key", "add key to lokalise", "lokalise publish",
-  "/lokalise-upload", "push lokalise keys", "add translation key", "create translation key",
-  "publish lokalise", "add $t key".
+  "/lokalise-create", "push lokalise keys", "add translation key", "create translation key",
+  "publish lokalise", "add $t key", "lokalise-create".
 ---
 
 # Lokalise — Create Keys
 
 Create one or more new translation keys directly in Lokalise via the `lokalise2` CLI.
-Do NOT touch `resources/lang/` — those files are managed by pulling from Lokalise separately.
+Do NOT touch local language files — those are managed by pulling from Lokalise separately.
 
 ## Key naming convention
 
-Keys are plain names with **no prefix** — the `default` namespace comes from the filename, not the key itself.
+Keys are plain names with **no prefix** — the namespace comes from the filename, not the key itself.
 
 - User says `my_button` → key is `my_button`
-- User says `tree_count` → key is `tree_count`
+- User says `item_count` → key is `item_count`
 
 ## Translations per key
 
@@ -49,7 +49,7 @@ If the user hasn't provided keys yet, ask:
 **Example input formats the user might give:**
 ```
 my_button => Click me
-tree_count => Number of trees planted
+item_count => Number of items
 ```
 Or conversationally: "add `my_button` with English text 'Click me'"
 
@@ -59,7 +59,7 @@ Show a compact one-line summary per key:
 ```
 Creating 2 key(s) in Lokalise (file: default.php):
   my_button   → "Click me" / keys: "my_button"
-  tree_count  → "Number of trees planted" / keys: "tree_count"
+  item_count  → "Number of items" / keys: "item_count"
 
 Proceed? [y/N]
 ```
@@ -76,27 +76,28 @@ lokalise2 key create \
   --project-id "$LOKALISE_PROJECT_ID" \
   --key-name "<KEY>" \
   --platforms "web" \
-  --filenames '{"web":"resources/lang/%LANG_ISO%/default.php"}' \
+  --filenames '{"web":"lang/%LANG_ISO%/default.php"}' \
   --translations '[{"language_iso":"en","translation":"<ENGLISH_TEXT>"},{"language_iso":"keys","translation":"<KEY>"}]'
 ```
 
+> **Note:** Adjust `--filenames` to match your project's language file path convention.
+
 Important: `--key-name` takes a **plain string** (e.g. `widget_dark_monochrome`), NOT a JSON object.
 
-Show progress: `✓ my_button`, `✗ tree_count (error: ...)`
+Show progress: `✓ my_button`, `✗ item_count (error: ...)`
 
 After all keys are processed, report total created vs failed.
 
 ### 5. Build (optional)
 
-Only run `pnpm run build` if the user explicitly asks for it — don't run it automatically.
+Only run a build command if the user explicitly asks for it — don't run it automatically.
 
 ## Notes
 
-- Key name is plain (e.g. `my_button`) — no prefix. The `default` namespace comes from the filename
+- Key name is plain (e.g. `my_button`) — no prefix. The namespace comes from the filename
 - `en` translation = English text provided by the user
-- `keys` translation = always the key name itself (mirrors `resources/lang/keys/` locally)
-- File is always `"filenames": { "web": "resources/lang/%LANG_ISO%/default.php" }`
+- `keys` translation = always the key name itself
 - `platforms` is always `["web"]`
-- Never modify `resources/lang/` — pulled from Lokalise separately
+- Never modify local language files — they are pulled from Lokalise separately
 - `lokalise2` CLI is assumed to be available in PATH. If `lokalise2` is not found, try `~/bin/lokalise2`
-- `.env` is at `/private/var/www/treenation/treenation-web/.env`
+- `.env` is read from the project root; adjust path if needed for your project structure
